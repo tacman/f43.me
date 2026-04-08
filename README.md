@@ -3,6 +3,16 @@
 ![CI](https://github.com/j0k3r/f43.me/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/github/j0k3r/f43.me/graph/badge.svg?token=Y11ye87FfN)](https://codecov.io/github/j0k3r/f43.me)
 
+## Notes on this fork.
+
+main is a fork of sy8, which is the Symfony 8 version.  
+
+This fork adds survos-specific tools, like deployment, which are outside of the scope of the original repo.  
+
+![Database Diagram](assets/docs/database.svg)
+
+# Original f32.me README/Author's notes
+
 ## What's that?
 
 I'm reading a lot of feeds in the subway. Mostly when I go to work and when I come back home. We are lucky in Paris because we have data network in the subway, but sometimes, network is saturated and you can't load the webpage of an item of your feed. You're stuck with only 3 lines from the feed...

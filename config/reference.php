@@ -1796,6 +1796,28 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     dump_destination?: scalar|Param|null, // A stream URL where dumps should be written to. // Default: null
  *     theme?: "dark"|"light"|Param, // Changes the color of the dump() output when rendered directly on the templating. "dark" (default) or "light". // Default: "dark"
  * }
+ * @psalm-type DoctrineDiagramConfig = array{
+ *     er?: array{
+ *         filename?: scalar|Param|null, // Default: "%kernel.project_dir%/er"
+ *         size?: "mini"|"midi"|"maxi"|Param, // Default: "midi"
+ *         theme?: scalar|Param|null, // Default: "_none_"
+ *         connection?: scalar|Param|null, // Default: null
+ *         exclude?: list<scalar|Param|null>,
+ *     },
+ *     class?: array{
+ *         filename?: scalar|Param|null, // Default: "%kernel.project_dir%/class"
+ *         size?: "mini"|"midi"|"maxi"|Param, // Default: "midi"
+ *         theme?: scalar|Param|null, // Default: "_none_"
+ *         em?: scalar|Param|null, // Default: null
+ *         exclude?: list<scalar|Param|null>,
+ *     },
+ *     convert?: array{
+ *         format?: "puml"|"png"|"svg"|Param, // Default: "svg"
+ *         converter?: "auto"|"jar"|"server"|Param, // Default: "auto"
+ *         jar?: scalar|Param|null, // Default: null
+ *         server?: scalar|Param|null, // Default: "http://www.plantuml.com/plantuml"
+ *     },
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1822,6 +1844,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         web_profiler?: WebProfilerConfig,
  *         debug?: DebugConfig,
+ *         doctrine_diagram?: DoctrineDiagramConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1851,6 +1874,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         web_profiler?: WebProfilerConfig,
  *         debug?: DebugConfig,
+ *         doctrine_diagram?: DoctrineDiagramConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
