@@ -20,14 +20,6 @@ class Extractor
     public $useDefault = false;
     /** @var Feed|null */
     protected $feed;
-    /** @var ExtractorChain */
-    protected $extractorChain;
-    /** @var ImproverChain */
-    protected $improverChain;
-    /** @var ConverterChain */
-    protected $converterChain;
-    /** @var ParserChain */
-    protected $parserChain;
     /** @var AbstractParser|false */
     protected $parser;
     /** @var bool */
@@ -38,12 +30,8 @@ class Extractor
     /**
      * Content Extractor will use Extractor, Improver & Parser to get the readable content.
      */
-    public function __construct(ExtractorChain $extractorChain, ImproverChain $improverChain, ConverterChain $converterChain, ParserChain $parserChain)
+    public function __construct(protected ExtractorChain $extractorChain, protected ImproverChain $improverChain, protected ConverterChain $converterChain, protected ParserChain $parserChain)
     {
-        $this->extractorChain = $extractorChain;
-        $this->improverChain = $improverChain;
-        $this->converterChain = $converterChain;
-        $this->parserChain = $parserChain;
     }
 
     /**
@@ -105,7 +93,7 @@ class Extractor
         // retrieve custom url ?
         $this->url = $improver->updateUrl($url);
 
-        // try to find a custom extractor for api content (imgur, twitter, etc...)
+        // try to find a custom extractor for api content (imgur, etc...)
         $extractor = $this->extractorChain->match($this->url);
         if (false !== $extractor) {
             $this->content = $extractor->getContent();

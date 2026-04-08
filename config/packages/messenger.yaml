@@ -1,8 +1,5 @@
 framework:
     messenger:
-        # reset services after consuming messages
-        reset_on_message: true
-
         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
         # failure_transport: failed
 
@@ -16,6 +13,11 @@ framework:
                     queues:
                         f43.fetch_items: ~
 
+            # https://symfony.com/doc/current/messenger.html#transport-configuration
+            # async: '%env(MESSENGER_TRANSPORT_DSN)%'
+            # failed: 'doctrine://default?queue_name=failed'
+            # sync: 'sync://'
+
         routing:
             'App\Message\FeedSync': fetch_items
 
@@ -24,3 +26,11 @@ framework:
                 middleware:
                     - doctrine_ping_connection
                     - doctrine_close_connection
+
+when@test:
+   framework:
+       messenger:
+           transports:
+               # replace with your transport name here (e.g., my_transport: 'in-memory://')
+               # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
+               async: 'in-memory://'

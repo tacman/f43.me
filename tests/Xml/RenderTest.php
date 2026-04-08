@@ -3,19 +3,19 @@
 namespace App\Tests\Xml;
 
 use App\Entity\Feed;
+use App\Repository\ItemRepository;
 use App\Xml\Render;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 
 class RenderTest extends TestCase
 {
-    /** @var \App\Repository\ItemRepository */
-    private $repo;
-    /** @var \Symfony\Bundle\FrameworkBundle\Routing\Router */
-    private $router;
+    private ItemRepository $repo;
+    private Router $router;
 
     protected function setUp(): void
     {
-        $this->router = $this->getMockBuilder('Symfony\Bundle\FrameworkBundle\Routing\Router')
+        $this->router = $this->getMockBuilder(Router::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -23,7 +23,7 @@ class RenderTest extends TestCase
             ->method('generate')
             ->willReturn('https://fake.url');
 
-        $this->repo = $this->getMockBuilder('App\Repository\ItemRepository')
+        $this->repo = $this->getMockBuilder(ItemRepository::class)
             ->onlyMethods(['findByFeed'])
             ->disableOriginalConstructor()
             ->getMock();
@@ -43,6 +43,7 @@ class RenderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $feed = new Feed();
+        $feed->setName('');
         $feed->setId(66);
         $feed->setSortBy('created_at');
 
@@ -56,6 +57,7 @@ class RenderTest extends TestCase
         $feed->setId(66);
         $feed->setSortBy('created_at');
         $feed->setFormatter('atom');
+        $feed->setName('');
 
         $render = new Render('tata', $this->repo, $this->router);
         $content = $render->doRender($feed);
@@ -77,6 +79,7 @@ class RenderTest extends TestCase
         $feed->setId(66);
         $feed->setSortBy('created_at');
         $feed->setFormatter('rss');
+        $feed->setName('');
 
         $render = new Render('tata', $this->repo, $this->router);
         $content = $render->doRender($feed);

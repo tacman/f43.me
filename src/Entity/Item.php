@@ -2,103 +2,81 @@
 
 namespace App\Entity;
 
+use App\Repository\ItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Table(
- *     name="item"
- * )
- *
- * @ORM\Entity(repositoryClass="App\Repository\ItemRepository")
- *
- * @ORM\HasLifecycleCallbacks()
- */
+#[ORM\Table(name: 'item')]
+#[ORM\Entity(repositoryClass: ItemRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Item
 {
     /**
      * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="title", type="text")
      */
+    #[ORM\Column(name: 'title', type: 'text')]
     protected $title;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="link", type="text")
-     *
-     * @Assert\NotBlank()
-     *
-     * @Assert\Url()
      */
+    #[ORM\Column(name: 'link', type: 'text')]
+    #[Assert\NotBlank]
+    #[Assert\Url(requireTld: false)]
     protected $link;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="permalink", type="text")
-     *
-     * @Assert\NotBlank()
-     *
-     * @Assert\Url()
      */
+    #[ORM\Column(name: 'permalink', type: 'text')]
+    #[Assert\NotBlank]
+    #[Assert\Url(requireTld: false)]
     protected $permalink;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="content", type="text", nullable=true)
+     * @var string|null
      */
+    #[ORM\Column(name: 'content', type: 'text', nullable: true)]
     protected $content;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="published_at", type="datetime", nullable=true)
+     * @var \DateTime|null
      */
+    #[ORM\Column(name: 'published_at', type: 'datetime', nullable: true)]
     protected $publishedAt;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime")
      */
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
     protected $createdAt;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="updated_at", type="datetime")
      */
+    #[ORM\Column(name: 'updated_at', type: 'datetime')]
     protected $updatedAt;
 
     /**
-     * @var Feed
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Feed", inversedBy="items")
-     *
-     * @ORM\JoinColumn(name="feed_id", referencedColumnName="id")
+     * @var Feed|null
      */
+    #[ORM\JoinColumn(name: 'feed_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: Feed::class, inversedBy: 'items')]
     protected $feed;
 
     /**
      * @var ArrayCollection<int, Log>
-     *
-     * @ORM\OneToMany(targetEntity="Log", mappedBy="item")
      */
+    #[ORM\OneToMany(targetEntity: Log::class, mappedBy: 'item')]
     protected $logs;
 
     public function __construct(Feed $feed)
@@ -181,10 +159,8 @@ class Item
 
     /**
      * Get content.
-     *
-     * @return string $content
      */
-    public function getContent(): string
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -278,7 +254,7 @@ class Item
     /**
      * Get publishedAt.
      *
-     * @return \DateTime $publishedAt
+     * @return \DateTime|null $publishedAt
      */
     public function getPublishedAt()
     {
@@ -289,18 +265,15 @@ class Item
      * Retrieve the "publication" date *only* used in the RSS/Atom feed.
      * Depending on the feed, we want the published_at date or the created_at date.
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getPubDate()
     {
-        return ('published_at' === $this->feed->getSortBy()) ? $this->getPublishedAt() : $this->getCreatedAt();
+        return ($this->feed && 'published_at' === $this->feed->getSortBy()) ? $this->getPublishedAt() : $this->getCreatedAt();
     }
 
-    /**
-     * @ORM\PrePersist
-     *
-     * @ORM\PreUpdate
-     */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function timestamps(): void
     {
         if (null === $this->createdAt) {
@@ -313,7 +286,7 @@ class Item
     /**
      * Return feed.
      *
-     * @return Feed
+     * @return Feed|null
      */
     public function getFeed()
     {

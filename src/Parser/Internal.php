@@ -10,12 +10,8 @@ use Graby\Graby;
  */
 class Internal extends AbstractParser
 {
-    /** @var Graby */
-    protected $graby;
-
-    public function __construct(Graby $graby)
+    public function __construct(protected Graby $graby)
     {
-        $this->graby = $graby;
     }
 
     public function parse(string $url, bool $reloadConfigFiles = false): string
@@ -26,10 +22,10 @@ class Internal extends AbstractParser
 
         try {
             $result = $this->graby->fetchContent($url);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return '';
         }
 
-        return $result->getHtml() ?? '';
+        return $result->getHtml();
     }
 }

@@ -1,7 +1,7 @@
 # f43.me
 
 ![CI](https://github.com/j0k3r/f43.me/workflows/CI/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/j0k3r/f43.me/badge.svg?branch=master&service=github)](https://coveralls.io/github/j0k3r/f43.me?branch=master)
+[![codecov](https://codecov.io/github/j0k3r/f43.me/graph/badge.svg?token=Y11ye87FfN)](https://codecov.io/github/j0k3r/f43.me)
 
 ## What's that?
 
@@ -66,16 +66,16 @@ You can find some examples in the [improver folder](https://github.com/j0k3r/f43
 
 ### Extractors
 
-Parser that gets html content from an url and find what can be the most interesting part for the user is important. But, most of the time they fail when it comes to images (like from Imgur, Flickr) or from social network (like Tumblr, Twitter or Facebook).
+Parser that gets html content from an url and find what can be the most interesting part for the user is important. But, most of the time they fail when it comes to images (like from Imgur, Flickr) or from social network (like Tumblr or Facebook).
 
-These online service provides API to retrieve content from the their platform. Extractors will use them to grab the *real* content.
+These online service provides API to retrieve content from their platform. Extractors will use them to grab the *real* content.
 
 An extractor uses 2 methods:
 
  * `match`: tells if this extractor needs to work on that item (usually a bunch of regex & host matching)
- * `getContent`: it will call the related API or url to fetch the content from the match parameters found in the `match` method (like Twitter ID, Flickr ID, etc...) and return a clean html
+ * `getContent`: it will call the related API or url to fetch the content from the match parameters found in the `match` method (like Flickr ID, etc...) and return a clean html
 
-You can find some of them in the [extractor folder](https://github.com/j0k3r/f43.me/tree/master/src/Extractor) (Flickr, Twitter, GitHub, etc...)
+You can find some of them in the [extractor folder](https://github.com/j0k3r/f43.me/tree/master/src/Extractor) (Flickr, GitHub, etc...)
 
 ### Parsers
 
@@ -98,8 +98,7 @@ You can find some of them in the [converter folder](https://github.com/j0k3r/f43
 
 ### Requirements
 
- - PHP >= 7.4 (with `pdo_mysql` or `pdo_pgsql`)
- - Node.js 20 (for assets), use `nvm install`
+ - PHP >= 8.2 (with `pdo_mysql` or `pdo_pgsql`)
  - MySQL >= 5.7 or PostgreSQL
  - [RabbitMQ](https://www.rabbitmq.com/), which is optional (see below)
  - [Supervisor](http://supervisord.org/) (only if you use RabbitMQ)
@@ -109,7 +108,6 @@ For each external API that improvers / extractors / parsers use, you will need a
  * Tumblr: https://www.tumblr.com/oauth/apps
  * Imgur: https://api.imgur.com/oauth2/addclient
  * Mercury: https://mercury.postlight.com/web-parser/
- * Twitch: https://www.twitch.tv/kraken/oauth2/clients/new
  * GitHub: https://github.com/settings/applications/new
 
 ### Install
@@ -132,9 +130,9 @@ Follow these steps:
 git clone git@github.com:j0k3r/f43.me.git
 cd f43.me
 APP_ENV=prod composer install -o --no-dev
-yarn install
+APP_ENV=prod php bin/console importmap:install
+APP_ENV=prod php bin/console asset-map:compile
 php bin/console doctrine:schema:create --env=prod
-yarn build
 ```
 
 #### Without RabbitMQ

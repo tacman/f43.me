@@ -3,20 +3,25 @@
 namespace App\Tests\Parser;
 
 use App\Parser\Internal;
+use Graby\Content;
+use Graby\Graby;
+use Graby\HttpClient\EffectiveResponse;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
 
 class InternalTest extends TestCase
 {
     public function testParseEmpty(): void
     {
-        $graby = $this->getMockBuilder('Graby\Graby')
+        $graby = $this->getMockBuilder(Graby::class)
             ->onlyMethods(['fetchContent'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $graby->expects($this->any())
             ->method('fetchContent')
-            ->willReturn([]);
+            ->willReturn($this->getGrabyContent(''));
 
         $internal = new Internal($graby);
         $this->assertEmpty($internal->parse('http://localhost'));
@@ -24,14 +29,14 @@ class InternalTest extends TestCase
 
     public function testParseFalse(): void
     {
-        $graby = $this->getMockBuilder('Graby\Graby')
+        $graby = $this->getMockBuilder(Graby::class)
             ->onlyMethods(['fetchContent'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $graby->expects($this->any())
             ->method('fetchContent')
-            ->willReturn(['html' => false]);
+            ->willReturn($this->getGrabyContent(''));
 
         $internal = new Internal($graby);
         $this->assertEmpty($internal->parse('http://localhost'));
@@ -39,14 +44,14 @@ class InternalTest extends TestCase
 
     public function testParseOk(): void
     {
-        $graby = $this->getMockBuilder('Graby\Graby')
+        $graby = $this->getMockBuilder(Graby::class)
             ->onlyMethods(['fetchContent'])
             ->disableOriginalConstructor()
             ->getMock();
 
         $graby->expects($this->any())
             ->method('fetchContent')
-            ->willReturn(['html' => '<p>test</p>']);
+            ->willReturn($this->getGrabyContent('<p>test</p>'));
 
         $internal = new Internal($graby);
         $this->assertNotEmpty($internal->parse('http://localhost'));
@@ -54,7 +59,7 @@ class InternalTest extends TestCase
 
     public function testParseException(): void
     {
-        $graby = $this->getMockBuilder('Graby\Graby')
+        $graby = $this->getMockBuilder(Graby::class)
             ->onlyMethods(['fetchContent'])
             ->disableOriginalConstructor()
             ->getMock();
@@ -65,5 +70,29 @@ class InternalTest extends TestCase
 
         $internal = new Internal($graby);
         $this->assertEmpty($internal->parse('http://localhost'));
+    }
+
+    private function getGrabyContent(string $html): Content
+    {
+        return new Content(
+            new EffectiveResponse(
+                new Uri('http://website.test/content.html'),
+                new Response(200, [], '')
+            ),
+            // html
+            $html,
+            // title
+            '',
+            // language
+            null,
+            // date
+            null,
+            // authors
+            [],
+            // image
+            null,
+            // is ads
+            false,
+        );
     }
 }

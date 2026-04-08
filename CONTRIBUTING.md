@@ -6,8 +6,8 @@ Contributions are welcome, of course.
 
 You locally need:
 
- - PHP >= 7.4 (with `pdo_mysql` or `pdo_pgsql`) with [Composer](https://getcomposer.org/) installed
- - Node.js 20 (use `nvm install`) with Yarn installed
+ - PHP >= 8.2 (with `pdo_mysql` or `pdo_pgsql`) with [Composer](https://getcomposer.org/) installed
+ - Node.js 22 (use `nvm install`) with Yarn installed
  - Docker (to run the database)
 
 Install deps:
@@ -34,7 +34,7 @@ make prepare
 Once it's ok, launch tests:
 
 ```
-php bin/simple-phpunit -v
+php bin/phpunit -v
 ```
 
 ## Linting

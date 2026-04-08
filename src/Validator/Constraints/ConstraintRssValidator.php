@@ -13,26 +13,23 @@ use Symfony\Component\Validator\ConstraintValidator;
  */
 class ConstraintRssValidator extends ConstraintValidator
 {
-    private $client;
-
-    public function __construct(HttpMethodsClientInterface $client)
+    public function __construct(private readonly HttpMethodsClientInterface $client)
     {
-        $this->client = $client;
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         try {
             $content = $this->client
                 ->get('https://validator.w3.org/feed/check.cgi?url=' . $value)
                 ->getBody();
-        } catch (RequestException $e) {
+        } catch (RequestException) {
             // if thing goes wrong, let's try with an alternative
             try {
                 $content = $this->client
                     ->get('https://www.rssboard.org/rss-validator/check.cgi?url=' . $value)
                     ->getBody();
-            } catch (RequestException $e) {
+            } catch (RequestException) {
                 $content = false;
             }
         }

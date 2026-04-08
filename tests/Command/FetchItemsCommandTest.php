@@ -3,34 +3,35 @@
 namespace App\Tests\Command;
 
 use App\Command\FetchItemsCommand;
+use App\Content\Extractor;
 use App\Content\Import;
 use App\Improver\ImproverChain;
 use App\Message\FeedSync;
 use App\Parser\ParserChain;
 use App\Repository\FeedRepository;
 use App\Repository\ItemRepository;
+use App\Xml\SimplePieProxy;
+use Doctrine\ORM\EntityManagerInterface;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
-use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Messenger\Bridge\Amqp\Transport\AmqpTransport;
+use Symfony\Component\Messenger\Bridge\Amqp\Transport\Connection;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class FetchItemsCommandTest extends WebTestCase
+class FetchItemsCommandTest extends KernelTestCase
 {
     /** @var TestHandler */
     private $handler;
-    /** @var \Symfony\Component\Console\Command\Command */
+    /** @var FetchItemsCommand */
     private $command;
-    /** @var CommandTester */
-    private $commandTester;
 
     protected function setUp(): void
     {
-        static::createClient();
-
         $simplePieItem = $this->getMockBuilder('SimplePie_Item')
             ->disableOriginalConstructor()
             ->getMock();
@@ -55,7 +56,7 @@ class FetchItemsCommandTest extends WebTestCase
             ->method('get_description')
             ->willReturn('description');
 
-        $simplePieProxy = $this->getMockBuilder('App\Xml\SimplePieProxy')
+        $simplePieProxy = $this->getMockBuilder(SimplePieProxy::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -67,7 +68,7 @@ class FetchItemsCommandTest extends WebTestCase
             ->method('init')
             ->willReturn($simplePie);
 
-        $bus = $this->getMockBuilder('Symfony\Component\Messenger\MessageBusInterface')
+        $bus = $this->getMockBuilder(MessageBusInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -78,7 +79,7 @@ class FetchItemsCommandTest extends WebTestCase
         $this->handler = new TestHandler();
         $logger->pushHandler($this->handler);
 
-        /** @var \Symfony\Component\DependencyInjection\ContainerInterface */
+        /** @var Container */
         $container = self::getContainer();
 
         $container->get(ParserChain::class)->addParser(
@@ -103,16 +104,15 @@ class FetchItemsCommandTest extends WebTestCase
 
         $import = new Import(
             $simplePieProxy,
-            $container->get(\App\Content\Extractor::class),
+            $container->get(Extractor::class),
             $container->get('event_dispatcher'),
-            $container->get(\Doctrine\ORM\EntityManagerInterface::class),
+            $container->get(EntityManagerInterface::class),
             $logger,
             $container->get(FeedRepository::class),
             $container->get(ItemRepository::class)
         );
 
-        $application = new Application(static::$kernel);
-        $application->add(new FetchItemsCommand(
+        $this->command = new FetchItemsCommand(
             $container->get(FeedRepository::class),
             $container->get(ItemRepository::class),
             $import,
@@ -120,74 +120,71 @@ class FetchItemsCommandTest extends WebTestCase
             'f43.me',
             $container->get('messenger.transport.fetch_items'),
             $bus
-        ));
-
-        $this->command = $application->find('feed:fetch-items');
-        $this->commandTester = new CommandTester($this->command);
+        );
     }
 
     public function testWrongSlug(): void
     {
-        $this->commandTester->execute([
-            'command' => $this->command->getName(),
-            '--slug' => 'toto',
-        ]);
+        $output = new BufferedOutput();
 
-        $this->assertRegExp('`Unable to find Feed document`', $this->commandTester->getDisplay());
+        $res = $this->command->__invoke($output, 'old', 'toto', false);
+
+        $this->assertSame($res, 1);
+        $this->assertMatchesRegularExpression('`Unable to find Feed document`', $output->fetch());
     }
 
     public function testHN(): void
     {
-        $this->commandTester->execute([
-            'command' => $this->command->getName(),
-            '--slug' => 'hackernews',
-        ], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE);
+
+        $res = $this->command->__invoke($output, 'old', 'hackernews', false);
+
+        $this->assertSame($res, 0);
+        $this->assertMatchesRegularExpression('`items cached.`', $output->fetch());
 
         $records = $this->handler->getRecords();
 
         $this->assertGreaterThan(0, $records);
         $this->assertStringContainsString('Working on', $records[0]['message']);
         $this->assertStringContainsString('HackerNews', $records[0]['message']);
-
-        $this->assertRegExp('`items cached.`', $this->commandTester->getDisplay());
     }
 
     public function testNew(): void
     {
-        $this->commandTester->execute([
-            'command' => $this->command->getName(),
-            'age' => 'new',
-        ], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE);
+
+        $res = $this->command->__invoke($output, 'new', false, false);
+
+        $this->assertSame($res, 0);
+        $this->assertMatchesRegularExpression('`items cached.`', $output->fetch());
 
         $records = $this->handler->getRecords();
 
         $this->assertGreaterThan(0, $records);
         $this->assertStringContainsString('Working on', $records[0]['message']);
-
-        $this->assertRegExp('`items cached.`', $this->commandTester->getDisplay());
     }
 
     public function testOld(): void
     {
-        $this->commandTester->execute([
-            'command' => $this->command->getName(),
-            'age' => 'old',
-        ], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE);
+
+        $res = $this->command->__invoke($output, 'old', false, false);
+
+        $this->assertSame($res, 0);
+        $this->assertMatchesRegularExpression('`items cached.`', $output->fetch());
 
         $records = $this->handler->getRecords();
 
         $this->assertGreaterThan(0, $records);
         $this->assertStringContainsString('Working on', $records[0]['message']);
-
-        $this->assertRegExp('`items cached.`', $this->commandTester->getDisplay());
     }
 
     public function testUsingQueue(): void
     {
-        /** @var \Symfony\Component\DependencyInjection\ContainerInterface */
+        /** @var Container */
         $container = self::getContainer();
 
-        $bus = $this->getMockBuilder('Symfony\Component\Messenger\MessageBusInterface')
+        $bus = $this->getMockBuilder(MessageBusInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -195,7 +192,7 @@ class FetchItemsCommandTest extends WebTestCase
             ->method('dispatch')
             ->willReturn(new Envelope(new FeedSync(555)));
 
-        $connection = $this->getMockBuilder('Symfony\Component\Messenger\Bridge\Amqp\Transport\Connection')
+        $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -203,8 +200,7 @@ class FetchItemsCommandTest extends WebTestCase
             ->method('countMessagesInQueues')
             ->willReturn(0);
 
-        $application = new Application(static::$kernel);
-        $application->add(new FetchItemsCommand(
+        $command = new FetchItemsCommand(
             $container->get(FeedRepository::class),
             $container->get(ItemRepository::class),
             null,
@@ -212,33 +208,29 @@ class FetchItemsCommandTest extends WebTestCase
             'f43.me',
             new AmqpTransport($connection),
             $bus
-        ));
+        );
 
-        $command = $application->find('feed:fetch-items');
-        $commandTester = new CommandTester($command);
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE);
 
-        $commandTester->execute([
-            'command' => $this->command->getName(),
-            'age' => 'old',
-            '--use_queue' => true,
-        ], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
+        $res = $command->__invoke($output, 'old', false, true);
 
-        $this->assertRegExp('`feeds queued.`', $commandTester->getDisplay());
+        $this->assertSame($res, 0);
+        $this->assertMatchesRegularExpression('`feeds queued.`', $output->fetch());
     }
 
     public function testCommandSyncAllUsersWithQueueFull(): void
     {
-        /** @var \Symfony\Component\DependencyInjection\ContainerInterface */
+        /** @var Container */
         $container = self::getContainer();
 
-        $bus = $this->getMockBuilder('Symfony\Component\Messenger\MessageBusInterface')
+        $bus = $this->getMockBuilder(MessageBusInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $bus->expects($this->any())
             ->method('dispatch');
 
-        $connection = $this->getMockBuilder('Symfony\Component\Messenger\Bridge\Amqp\Transport\Connection')
+        $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -246,8 +238,7 @@ class FetchItemsCommandTest extends WebTestCase
             ->method('countMessagesInQueues')
             ->willReturn(10);
 
-        $application = new Application(static::$kernel);
-        $application->add(new FetchItemsCommand(
+        $command = new FetchItemsCommand(
             $container->get(FeedRepository::class),
             $container->get(ItemRepository::class),
             null,
@@ -255,17 +246,13 @@ class FetchItemsCommandTest extends WebTestCase
             'f43.me',
             new AmqpTransport($connection),
             $bus
-        ));
+        );
 
-        $command = $application->find('feed:fetch-items');
-        $commandTester = new CommandTester($command);
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE);
 
-        $commandTester->execute([
-            'command' => $command->getName(),
-            'age' => 'old',
-            '--use_queue' => true,
-        ], ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]);
+        $res = $command->__invoke($output, 'old', false, true);
 
-        $this->assertStringContainsString('Current queue as too much messages (10), skipping.', $commandTester->getDisplay());
+        $this->assertSame($res, 1);
+        $this->assertStringContainsString('Current queue as too much messages (10), skipping.', $output->fetch());
     }
 }

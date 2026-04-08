@@ -4,6 +4,7 @@ namespace App\Tests\Xml;
 
 use App\Xml\SimplePieProxy;
 use PHPUnit\Framework\TestCase;
+use SimplePie\SimplePie;
 
 class SimplePieProxyTest extends TestCase
 {
@@ -27,7 +28,7 @@ class SimplePieProxyTest extends TestCase
         $res = $proxy->setUrl('http://test.com');
         $feed = $proxy->init();
 
-        $this->assertSame('App\Xml\SimplePieProxy', \get_class($res));
-        $this->assertSame('SimplePie\SimplePie', \get_class($feed));
+        $this->assertSame(SimplePieProxy::class, $res::class);
+        $this->assertSame(SimplePie::class, $feed::class);
     }
 }

@@ -5,11 +5,11 @@ namespace App\Controller;
 use App\Content\Extractor;
 use App\Form\Type\ItemTestType;
 use Graby\Monolog\Handler\GrabyHandler;
-use Monolog\Logger;
+use Monolog\Level;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class TestController extends AbstractController
 {
@@ -19,9 +19,8 @@ class TestController extends AbstractController
      * - improve parser
      * - chose the best parser
      * - test a site configuration.
-     *
-     * @Route("/feed/test", name="feed_test", methods={"GET", "POST"})
      */
+    #[Route(path: '/feed/test', name: 'feed_test', methods: ['GET', 'POST'])]
     public function indexAction(Request $request, Extractor $contentExtractor, GrabyHandler $grabyHandler): Response
     {
         $form = $this->createForm(ItemTestType::class);
@@ -35,8 +34,9 @@ class TestController extends AbstractController
             // load custom siteconfig from user
             // add ability to test a siteconfig before submitting it
             $siteConfig = $form->get('siteconfig')->getData();
-            if (trim($siteConfig)) {
-                $host = parse_url($form->get('link')->getData(), \PHP_URL_HOST);
+            $replaceCurrentSiteconfig = $form->get('siteconfig_replace')->getData();
+            if (trim((string) $siteConfig)) {
+                $host = parse_url((string) $form->get('link')->getData(), \PHP_URL_HOST);
 
                 if ($host) {
                     // remove www. from host because graby check for domain (without www.) first
@@ -49,7 +49,10 @@ class TestController extends AbstractController
 
                     if (file_exists($filePath)) {
                         $previousVersion = file_get_contents($filePath);
-                        $siteConfig = $previousVersion . "\n" . $siteConfig;
+
+                        if (!$replaceCurrentSiteconfig) {
+                            $siteConfig = $previousVersion . "\n" . $siteConfig;
+                        }
                     }
 
                     file_put_contents($filePath, $siteConfig);
@@ -73,9 +76,9 @@ class TestController extends AbstractController
         return $this->render('default/Test/index.html.twig', [
             'menu' => 'test',
             'content' => $content,
-            'form' => $form->createView(),
+            'form' => $form,
             'logs' => $grabyHandler->getRecords(),
-            'logsHasWarning' => $grabyHandler->hasRecords(Logger::WARNING),
+            'logsHasWarning' => $grabyHandler->hasRecords(Level::Warning),
         ]);
     }
 }

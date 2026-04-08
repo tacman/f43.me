@@ -2,6 +2,8 @@
 
 namespace App\Tests\Controller;
 
+use PHPUnit\Framework\Attributes\Depends;
+
 class ItemControllerTest extends FeedWebTestCase
 {
     public function testUnAuthorized(): void
@@ -24,7 +26,7 @@ class ItemControllerTest extends FeedWebTestCase
         $client->request('GET', '/feed/nawak/items');
 
         $this->assertSame(404, $client->getResponse()->getStatusCode());
-        $this->assertStringContainsString('Feed object not found', (string) $client->getResponse()->getContent());
+        $this->assertStringContainsString('object not found', (string) $client->getResponse()->getContent());
     }
 
     public function testIndex(): string
@@ -48,9 +50,7 @@ class ItemControllerTest extends FeedWebTestCase
         return $preview[0][1];
     }
 
-    /**
-     * @depends testIndex
-     */
+    #[Depends('testIndex')]
     public function testPreview(string $previewLink): void
     {
         $client = static::getAuthorizedClient();
@@ -69,7 +69,7 @@ class ItemControllerTest extends FeedWebTestCase
         $client->request('GET', '/item/3456789/preview');
 
         $this->assertSame(404, $client->getResponse()->getStatusCode());
-        $this->assertStringContainsString('Item object not found', (string) $client->getResponse()->getContent());
+        $this->assertStringContainsString('object not found', (string) $client->getResponse()->getContent());
     }
 
     public function testPreviewItemInternal(): void
@@ -108,7 +108,7 @@ class ItemControllerTest extends FeedWebTestCase
         $client->request('GET', '/feed/nawak/previewItem');
 
         $this->assertSame(404, $client->getResponse()->getStatusCode());
-        $this->assertStringContainsString('Feed object not found', (string) $client->getResponse()->getContent());
+        $this->assertStringContainsString('object not found', (string) $client->getResponse()->getContent());
     }
 
     public function testDeleteAll(): void
@@ -146,6 +146,6 @@ class ItemControllerTest extends FeedWebTestCase
         $client->request('POST', '/feed/nawak/items/deleteAll');
 
         $this->assertSame(404, $client->getResponse()->getStatusCode());
-        $this->assertStringContainsString('Feed object not found', (string) $client->getResponse()->getContent());
+        $this->assertStringContainsString('object not found', (string) $client->getResponse()->getContent());
     }
 }

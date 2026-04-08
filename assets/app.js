@@ -1,18 +1,20 @@
-const timeago = require('timeago.js')
-
-import './styles/app.scss'
+import '@picocss/pico/css/pico.css';
+import { render } from 'timeago.js';
+import './styles/app.css';
 
 // handle timeago date on the public page
 if (document.querySelectorAll('.time-ago').length > 0) {
-    timeago.render(document.querySelectorAll('.time-ago'), { minInterval: 60 })
+    render(document.querySelectorAll('.time-ago'), undefined, { minInterval: 60 })
 }
 
 // handle show / hide of the textarea when testing config file
 const siteconfig = document.getElementById('siteconfig')
 if (siteconfig !== null) {
-    const siteconfigTextarea = siteconfig.childNodes[3]
+    const siteconfigTextarea = siteconfig.querySelector('textarea')
+    const siteconfigCheckboxDiv = siteconfig.querySelector('div')
     if (siteconfigTextarea.value === '') {
         siteconfigTextarea.style.display = 'none'
+        siteconfigCheckboxDiv.style.display = 'none'
     }
 
     document.getElementById('try-siteconfig').onclick = function (event) {
@@ -24,8 +26,10 @@ if (siteconfig !== null) {
 
         if (siteconfigTextarea.style.display === 'none') {
             siteconfigTextarea.style.display = 'block'
+            siteconfigCheckboxDiv.style.display = 'block'
         } else {
             siteconfigTextarea.style.display = 'none'
+            siteconfigCheckboxDiv.style.display = 'none'
         }
 
         return false

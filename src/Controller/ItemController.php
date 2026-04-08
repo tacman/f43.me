@@ -8,23 +8,23 @@ use App\Entity\Item;
 use App\Repository\ItemRepository;
 use App\Xml\SimplePieProxy;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ItemController extends AbstractController
 {
     /**
      * Lists all Items documents related to a Feed.
      *
-     * @Route("/feed/{slug}/items", name="item_homepage", methods={"GET"})
-     *
      * @param Feed $feed The document Feed (retrieving for a ParamConverter with the slug)
      */
-    public function indexAction(Feed $feed, ItemRepository $itemRepository): Response
+    #[Route(path: '/feed/{slug}/items', name: 'item_homepage', methods: ['GET'])]
+    public function indexAction(#[MapEntity(mapping: ['slug' => 'slug'])] Feed $feed, ItemRepository $itemRepository): Response
     {
         $items = $itemRepository->findByFeed(
             $feed->getId(),
@@ -35,18 +35,17 @@ class ItemController extends AbstractController
             'menu' => 'feed',
             'feed' => $feed,
             'items' => $items,
-            'delete_all_form' => $this->createFormBuilder()->getForm()->createView(),
+            'delete_all_form' => $this->createFormBuilder()->getForm(),
         ]);
     }
 
     /**
      * Delete all items for a given Feed.
      *
-     * @Route("/feed/{slug}/items/deleteAll", name="item_delete_all", methods={"POST"})
-     *
      * @param Feed $feed The document Feed (retrieving for a ParamConverter with the slug)
      */
-    public function deleteAllAction(Request $request, Feed $feed, ItemRepository $itemRepository, EntityManagerInterface $em, Session $session): RedirectResponse
+    #[Route(path: '/feed/{slug}/items/deleteAll', name: 'item_delete_all', methods: ['POST'])]
+    public function deleteAllAction(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] Feed $feed, ItemRepository $itemRepository, EntityManagerInterface $em, Session $session): RedirectResponse
     {
         $form = $this->createFormBuilder()->getForm();
         $form->handleRequest($request);
@@ -67,11 +66,10 @@ class ItemController extends AbstractController
     /**
      * Preview an item that is already cached.
      *
-     * @Route("/item/{id}/preview", name="item_preview_cached", methods={"GET"})
-     *
      * @param Item $feedItem The document Item (retrieving for a ParamConverter with the id)
      */
-    public function previewCachedAction(Item $feedItem): Response
+    #[Route(path: '/item/{id}/preview', name: 'item_preview_cached', methods: ['GET'])]
+    public function previewCachedAction(#[MapEntity(id: 'id')] Item $feedItem): Response
     {
         return $this->render('default/Item/content.html.twig', [
             'title' => $feedItem->getTitle(),
@@ -84,18 +82,17 @@ class ItemController extends AbstractController
     /**
      * Following the previous action, this one will actually parse the content (for both parser).
      *
-     * @Route("/feed/{slug}/previewItem", name="item_preview_new", methods={"GET"})
-     *
      * @param Feed $feed The document Feed (retrieving for a ParamConverter with the slug)
      */
-    public function previewNewAction(Request $request, Feed $feed, SimplePieProxy $simplePieProxy, Extractor $contentExtractor): Response
+    #[Route(path: '/feed/{slug}/previewItem', name: 'item_preview_new', methods: ['GET'])]
+    public function previewNewAction(Request $request, #[MapEntity(mapping: ['slug' => 'slug'])] Feed $feed, SimplePieProxy $simplePieProxy, Extractor $contentExtractor): Response
     {
         $rssFeed = $simplePieProxy
             ->setUrl($feed->getLink())
             ->init();
 
         try {
-            $parser = $contentExtractor->init($request->get('parser'), $feed);
+            $parser = $contentExtractor->init($request->query->get('parser', 'internal'), $feed);
         } catch (\InvalidArgumentException $e) {
             throw $this->createNotFoundException($e->getMessage());
         }

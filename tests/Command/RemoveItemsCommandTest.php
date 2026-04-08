@@ -2,31 +2,22 @@
 
 namespace App\Tests\Command;
 
-use App\Command\RemoveItemsCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class RemoveItemsCommandTest extends WebTestCase
+class RemoveItemsCommandTest extends KernelTestCase
 {
-    /** @var \Symfony\Component\Console\Command\Command */
+    /** @var Command */
     private $command;
     /** @var CommandTester */
     private $commandTester;
 
     protected function setUp(): void
     {
-        static::createClient();
-
-        /** @var \Symfony\Component\DependencyInjection\ContainerInterface */
-        $container = self::getContainer();
-
-        $application = new Application(static::$kernel);
-        $application->add(new RemoveItemsCommand(
-            $container->get(\App\Repository\FeedRepository::class),
-            $container->get(\App\Repository\ItemRepository::class),
-            $container->get(\Doctrine\ORM\EntityManagerInterface::class)
-        ));
+        $kernel = self::bootKernel();
+        $application = new Application($kernel);
 
         $this->command = $application->find('feed:remove-items');
         $this->commandTester = new CommandTester($this->command);
@@ -36,7 +27,7 @@ class RemoveItemsCommandTest extends WebTestCase
     {
         $this->commandTester->execute(['command' => $this->command->getName()]);
 
-        $this->assertRegExp('`0 items removed.`', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('`0 items removed.`', $this->commandTester->getDisplay());
     }
 
     public function testRemoveForOneFeed(): void
@@ -47,7 +38,7 @@ class RemoveItemsCommandTest extends WebTestCase
             '--slug' => 'hackernews',
         ]);
 
-        $this->assertRegExp('`0 items removed.`', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('`0 items removed.`', $this->commandTester->getDisplay());
     }
 
     public function testRemoveBadSlug(): void
@@ -58,7 +49,7 @@ class RemoveItemsCommandTest extends WebTestCase
             '--slug' => 'toto',
         ]);
 
-        $this->assertRegExp('`Unable to find Feed document`', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('`Unable to find Feed document`', $this->commandTester->getDisplay());
     }
 
     public function testRemoveAllMaxYes(): void
@@ -71,7 +62,7 @@ class RemoveItemsCommandTest extends WebTestCase
             '--max' => 0,
         ]);
 
-        $this->assertRegExp('`You will remove ALL items, are your sure?`', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('`You will remove ALL items, are your sure?`', $this->commandTester->getDisplay());
     }
 
     public function testRemoveAllMaxNo(): void
@@ -84,7 +75,7 @@ class RemoveItemsCommandTest extends WebTestCase
             '--max' => 0,
         ]);
 
-        $this->assertRegExp('`remove everything from your database, pfiou`', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('`remove everything from your database, pfiou`', $this->commandTester->getDisplay());
     }
 
     public function testRemove(): void
@@ -96,6 +87,6 @@ class RemoveItemsCommandTest extends WebTestCase
             '--max' => 2,
         ]);
 
-        $this->assertRegExp('`items removed.`', $this->commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('`items removed.`', $this->commandTester->getDisplay());
     }
 }

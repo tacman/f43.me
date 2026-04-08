@@ -11,16 +11,16 @@ on:
 jobs:
   coding-standards:
     name: CS Fixer & PHPStan
-    runs-on: "ubuntu-20.04"
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         php:
-          - "7.4"
+          - "8.2"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -33,16 +33,13 @@ jobs:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies with Composer
-        uses: ramsey/composer-install@v3
+        uses: ramsey/composer-install@v4
 
       - name: Run PHP CS Fixer
         run: bin/php-cs-fixer fix --verbose --dry-run
 
       - name: Generate test cache for PHPStan
         run: php bin/console cache:clear --env=test
-
-      - name: Install PHPUnit for PHPStan
-        run: php bin/simple-phpunit install
 
       - name: Run PHPStan
         run: php bin/phpstan analyse --no-progress

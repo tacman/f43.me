@@ -7,10 +7,11 @@ use App\Tests\AppTestCase;
 use GuzzleHttp\Psr7\Response;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class SpotifyTest extends AppTestCase
 {
-    public function dataMatch(): array
+    public static function dataMatch(): array
     {
         return [
             ['http://open.spotify.com/track/298gs9ATwr2rD9tGYJKlQR', true],
@@ -18,14 +19,13 @@ class SpotifyTest extends AppTestCase
             ['https://play.spotify.com/artist/4njdEjTnLfcGImKZu1iSrz', true],
             ['https://play.spotify.com/album/6yGp5e6Puhx155c8dQ8e6P', true],
             ['https://play.spotify.com/track/2wIC3jqtTK78zQMdj1DRLu', true],
+            ['https://spotify.link/abc123', true],
             ['https://goog.co', false],
             ['http://user@:80', false],
         ];
     }
 
-    /**
-     * @dataProvider dataMatch
-     */
+    #[DataProvider('dataMatch')]
     public function testMatch(string $url, bool $expected): void
     {
         $spotify = new Spotify();

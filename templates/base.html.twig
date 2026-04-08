@@ -10,13 +10,10 @@
         <link rel="preconnect" href="https://t3.gstatic.com">
         <link rel="preconnect" href="https://s2.googleusercontent.com">
 
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
+        {% block stylesheets %}{% endblock %}
 
         {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-            {{ encore_entry_script_tags('theme-switcher') }}
+            {% block importmap %}{{ importmap(['app', 'theme-switcher']) }}{% endblock %}
         {% endblock %}
     </head>
     <body>
@@ -38,7 +35,7 @@
                 <li><strong>f43.me</strong> <small>readable &amp; cleaner feeds</small></li>
             </ul>
 
-            {% if app.user %}
+            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                 <ul>
                     <li><a href="{{ path('feed_dashboard') }}" class="{% if menu is defined and 'dashboard' == menu %}{% else %}secondary{% endif %}">Dashboard</a></li>
                     <li><a href="{{ path('feed_homepage') }}" class="{% if menu is defined and 'feed' == menu %}{% else %}secondary{% endif %}">Feeds</a></li>
