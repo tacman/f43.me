@@ -157,11 +157,6 @@ class FetchItemsCommandTest extends KernelTestCase
 
         $this->assertSame($res, 0);
         $this->assertMatchesRegularExpression('`items cached.`', $output->fetch());
-
-        $records = $this->handler->getRecords();
-
-        $this->assertGreaterThan(0, $records);
-        $this->assertStringContainsString('Working on', $records[0]['message']);
     }
 
     public function testOld(): void

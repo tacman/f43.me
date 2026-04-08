@@ -6,18 +6,16 @@ use App\Entity\Feed;
 use App\Repository\ItemRepository;
 use App\Xml\Render;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\Routing\RouterInterface;
 
 class RenderTest extends TestCase
 {
     private ItemRepository $repo;
-    private Router $router;
+    private RouterInterface $router;
 
     protected function setUp(): void
     {
-        $this->router = $this->getMockBuilder(Router::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->router = $this->createMock(RouterInterface::class);
 
         $this->router->expects($this->any())
             ->method('generate')

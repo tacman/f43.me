@@ -2,8 +2,42 @@
 
 namespace App\Tests\Controller;
 
+use App\Entity\Log;
+use App\Repository\FeedRepository;
+use App\Repository\LogRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+
 class LogControllerTest extends FeedWebTestCase
 {
+    public function getAuthorizedClient(): KernelBrowser
+    {
+        $client = static::createClient();
+        $container = $client->getContainer();
+
+        /** @var FeedRepository $feedRepository */
+        $feedRepository = $container->get(FeedRepository::class);
+        /** @var LogRepository $logRepository */
+        $logRepository = $container->get(LogRepository::class);
+
+        $feed = $feedRepository->findOneBy(['slug' => 'reddit']);
+        self::assertNotNull($feed);
+
+        if (0 === $logRepository->countByFeedId($feed->getId())) {
+            $log = new Log($feed);
+            $log->setItemsNumber(25);
+
+            /** @var EntityManagerInterface $entityManager */
+            $entityManager = $container->get(EntityManagerInterface::class);
+            $entityManager->persist($log);
+            $entityManager->flush();
+        }
+
+        $client->loginUser(new \Symfony\Component\Security\Core\User\InMemoryUser('admin', 'testadmin', ['ROLE_ADMIN']));
+
+        return $client;
+    }
+
     public function testUnAuthorized(): void
     {
         $client = static::createClient();
