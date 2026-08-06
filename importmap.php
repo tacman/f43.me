@@ -10,32 +10,24 @@
  *     be used as an "entrypoint" (and passed to the importmap() Twig function).
  *
  * The "importmap:require" command can be used to add new entries to this file.
+ *
+ * @return array<string, array{    // Import name as key, description of the imported file as value
+ *     path: string,               // Logical, relative or absolute path to the file
+ *     type?: 'js'|'css'|'json',   // Type of the file, defaults to 'js'
+ *     entrypoint?: bool,          // Whether the file is an entrypoint, for 'js' only
+ * }|array{
+ *     version: string,            // Version of the remote package
+ *     package_specifier?: string, // Remote "package-name/path" specifier, defaults to the import name
+ *     type?: 'js'|'css'|'json',
+ *     entrypoint?: bool,
+ * }>
  */
 return [
-    'app' => [
-        'path' => './assets/app.js',
-        'entrypoint' => true,
-    ],
-    'login' => [
-        'path' => './assets/login.js',
-        'entrypoint' => true,
-    ],
-    'modal' => [
-        'path' => './assets/modal.js',
-        'entrypoint' => true,
-    ],
-    'theme-switcher' => [
-        'path' => './assets/theme-switcher.js',
-        'entrypoint' => true,
-    ],
-    'timeago.js' => [
-        'version' => '4.0.2',
-    ],
-    '@picocss/pico/css/pico.css' => [
-        'version' => '2.1.1',
-        'type' => 'css',
-    ],
-    'es-module-shims' => [
-        'version' => '2.8.0',
-    ],
+    'app' => ['path' => './assets/app.js', 'entrypoint' => true],
+    'login' => ['path' => './assets/login.js', 'entrypoint' => true],
+    'modal' => ['path' => './assets/modal.js', 'entrypoint' => true],
+    'theme-switcher' => ['path' => './assets/theme-switcher.js', 'entrypoint' => true],
+    'timeago.js' => ['version' => '4.0.2'],
+    '@picocss/pico/css/pico.css' => ['version' => '2.1.1', 'type' => 'css'],
+    'es-module-shims' => ['version' => '2.8.4'],
 ];

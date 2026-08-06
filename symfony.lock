@@ -8,9 +8,6 @@
     "clue/stream-filter": {
         "version": "v1.4.1"
     },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.5"
-    },
     "composer/pcre": {
         "version": "1.0.0"
     },
