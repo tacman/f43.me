@@ -22,13 +22,13 @@
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.5",
         "beberlei/doctrineextensions": "^1.2",
         "composer/package-versions-deprecated": "^1.11",
+        "doctrine/dbal": "4.5.x-dev",
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/orm": "^3.5",
         "gedmo/doctrine-extensions": "^3.20",
-        "j0k3r/graby": "dev-master",
         "j0k3r/graby-site-config": "^1",
         "j0k3r/php-imgur-api-client": "~4.0",
         "laminas/laminas-code": "^4.5",
@@ -51,6 +51,7 @@
         "symfony/twig-bundle": "^7.4|^8.0",
         "symfony/validator": "^7.4|^8.0",
         "symfony/yaml": "^7.4|^8.0",
+        "tacman/graby": "dev-tac",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0"
     },
@@ -103,7 +104,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "7.4.*|8.0.*",
+            "require": "^8.1",
             "docker": true
         }
     }
