@@ -1,13 +1,20 @@
 # f43.me
 
+> **Deprecated: development has moved to [survos-sites/feeds](https://github.com/survos-sites/feeds).**
+>
+> Keep this fork as a reference for its upstream merge, PHP 8.5/Symfony 8.1 upgrade,
+> and Graby/readability fixes. New Survos news ingestion, curation, search, and AI
+> work belongs in `feeds`, the starting point for the unified news Hub.
+> This fork is not the application to install for new development.
+
 ![CI](https://github.com/j0k3r/f43.me/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/github/j0k3r/f43.me/graph/badge.svg?token=Y11ye87FfN)](https://codecov.io/github/j0k3r/f43.me)
 
 ## Notes on this fork
 
-The maintained branch is **`tac`**, based on the PHP 8.5 / Symfony 8.1 upgrade
+The final consolidated reference branch is **`tac`**, based on the PHP 8.5 / Symfony 8.1 upgrade
 and merged with upstream. `main` and `tac-upgrade` were aligned during the
-2026-09-29 consolidation; use `tac` for new work. The previous `tac` experiments
+2026-09-29 consolidation; new development continues in `survos-sites/feeds`. The previous `tac` experiments
 are preserved at `archive/tac-2026-09-29`.
 
 This fork keeps `tacman/graby` and `tacman/php-readability`, with optional Tidy

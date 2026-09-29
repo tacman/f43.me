@@ -12,9 +12,10 @@ This is useful upstream in a news-ingestion service or Harvest, particularly for
 RSS entries that only contain excerpts. Keep extraction server-side.
 
 For enrichment, persist/flush an article before dispatching work by item ID.
-The current `ItemsCachedEvent` is dispatched before the final flush, so attaching
-a worker there without transaction/dispatch changes risks reading missing rows.
-Use a post-commit dispatch or transactional outbox. Key results by source content
+The current `ItemsCachedEvent` runs after each feed has been flushed, but carries
+feed slugs rather than new article IDs. Use an explicit persisted-item event for
+enrichment; if introducing an outer transaction, dispatch after commit or use a
+transactional outbox. Key results by source content
 hash, model, prompt version and schema version so retries do not create duplicate
 paid calls. Store summaries and extracted metadata separately from original text.
 
