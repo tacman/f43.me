@@ -3,10 +3,12 @@ name: CS
 on:
   pull_request:
     branches:
-      - master
+      - tac
+      - main
   push:
     branches:
-      - master
+      - tac
+      - main
 
 jobs:
   coding-standards:
@@ -16,11 +18,11 @@ jobs:
     strategy:
       matrix:
         php:
-          - "8.2"
+          - "8.5"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2

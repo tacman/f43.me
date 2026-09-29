@@ -28,8 +28,7 @@ class ExtractorTest extends TestCase
     {
         $contentExtractor = $this->getContentExtrator();
 
-        $this->graby->expects($this->any())
-            ->method('fetchContent')
+        $this->graby->method('fetchContent')
             ->willReturn($this->getGrabyContent(''));
 
         $contentExtractor->parseContent('http://foo.bar.nowhere', 'default content');
@@ -41,8 +40,7 @@ class ExtractorTest extends TestCase
     {
         $contentExtractor = $this->getContentExtrator();
 
-        $this->graby->expects($this->any())
-            ->method('fetchContent')
+        $this->graby->method('fetchContent')
             ->will($this->throwException(new \Exception()));
 
         $contentExtractor->parseContent('http://foo.bar.nowhere/test.html', 'default content');
@@ -55,8 +53,7 @@ class ExtractorTest extends TestCase
     {
         $contentExtractor = $this->getContentExtrator(true);
 
-        $this->graby->expects($this->any())
-            ->method('fetchContent')
+        $this->graby->method('fetchContent')
             ->willReturn($this->getGrabyContent(''));
 
         $contentExtractor->parseContent('http://foo.bar.nowhere', 'default content');
@@ -68,8 +65,7 @@ class ExtractorTest extends TestCase
     {
         $contentExtractor = $this->getContentExtrator(false, true);
 
-        $this->graby->expects($this->any())
-            ->method('fetchContent')
+        $this->graby->method('fetchContent')
             ->willReturn($this->getGrabyContent(''));
 
         $contentExtractor->parseContent('http://foo.bar.nowhere', 'default content');
@@ -80,7 +76,7 @@ class ExtractorTest extends TestCase
     public function testInvalidParser(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('The given parser "oops" does not exists.');
+        $this->expectExceptionMessageIs('The given parser "oops" does not exists.');
 
         $extractorChain = $this->getMockBuilder(ExtractorChain::class)
             ->disableOriginalConstructor()
@@ -110,8 +106,7 @@ class ExtractorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $extractorChain->expects($this->any())
-            ->method('match')
+        $extractorChain->method('match')
             ->willReturn(false);
 
         if (true === $customExtractor) {
@@ -131,8 +126,7 @@ class ExtractorTest extends TestCase
                 }
             };
 
-            $extractorChain->expects($this->any())
-                ->method('match')
+            $extractorChain->method('match')
                 ->willReturn($extractor);
         }
 
@@ -144,24 +138,20 @@ class ExtractorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $defaultImprover->expects($this->any())
-            ->method('updateContent')
+        $defaultImprover->method('updateContent')
             ->willReturnArgument(0);
 
-        $defaultImprover->expects($this->any())
-            ->method('updateUrl')
+        $defaultImprover->method('updateUrl')
             ->willReturnArgument(0);
 
-        $improverChain->expects($this->any())
-            ->method('match')
+        $improverChain->method('match')
             ->willReturn($defaultImprover);
 
         $converterChain = $this->getMockBuilder(ConverterChain::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $converterChain->expects($this->any())
-            ->method('convert')
+        $converterChain->method('convert')
             ->willReturnArgument(0);
 
         $this->graby = $this->getMockBuilder(Graby::class)
@@ -175,8 +165,7 @@ class ExtractorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $parserChain->expects($this->any())
-            ->method('getParser')
+        $parserChain->method('getParser')
             ->willReturn($internalParser);
 
         $contentExtractor = new Extractor($extractorChain, $improverChain, $converterChain, $parserChain);

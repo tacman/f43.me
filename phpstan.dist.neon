@@ -7,6 +7,10 @@ parameters:
         - src/
         - tests/
 
+    excludePaths:
+        analyse:
+            - config/reference.php
+
     symfony:
         containerXmlPath: %rootDir%/../../../var/cache/test/App_KernelTestDebugContainer.xml
         consoleApplicationLoader: tests/console-application.php
@@ -22,6 +26,6 @@ parameters:
         -
             path: tests/Command/FetchItemsCommandTest.php
             identifier: argument.type
-            count: 4
+            count: 3
 
     inferPrivatePropertyTypeFromConstructor: true

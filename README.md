@@ -3,11 +3,42 @@
 ![CI](https://github.com/j0k3r/f43.me/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/github/j0k3r/f43.me/graph/badge.svg?token=Y11ye87FfN)](https://codecov.io/github/j0k3r/f43.me)
 
-## Notes on this fork.
+## Notes on this fork
 
-main is a fork of sy8, which is the Symfony 8 version.  
+The maintained branch is **`tac`**, based on the PHP 8.5 / Symfony 8.1 upgrade
+and merged with upstream. `main` and `tac-upgrade` were aligned during the
+2026-09-29 consolidation; use `tac` for new work. The previous `tac` experiments
+are preserved at `archive/tac-2026-09-29`.
 
-This fork adds survos-specific tools, like deployment, which are outside of the scope of the original repo.  
+This fork keeps `tacman/graby` and `tacman/php-readability`, with optional Tidy
+support and the parser selection UI. See [the consolidation notes](docs/SETUP-2026-09-29.md)
+and [reuse/AI notes](docs/REUSE-AND-AI.md).
+
+### Local development
+
+Requires PHP 8.5+, Composer, PostgreSQL (or MySQL), and optionally RabbitMQ.
+On the Survos workstation the default database is PostgreSQL on port 5434.
+
+```bash
+cd ~/sites/f43.me
+composer install
+# Set APP_SECRET, ADMINPASS (password hash), and DATABASE_URL in .env.local.
+# Use single quotes around the password hash to preserve dollar signs.
+php bin/console doctrine:database:create --if-not-exists
+php bin/console doctrine:schema:create # first installation only
+symfony proxy:domain:attach f43
+symfony server:start -d
+```
+
+Open https://f43.wip and sign in as `admin`. The local install has a generated
+password; it is not committed. Set `SENTRY_DSN=` locally to disable the example
+Sentry endpoint. Feed fetching works synchronously without a queue worker.
+For queued fetching, configure `MESSENGER_TRANSPORT_DSN`, run
+`messenger:setup-transports`, and start `messenger:consume fetch_items`.
+
+For tests, use a separate database in `.env.test.local` (never the development
+or production database), create its schema and load fixtures with `--env=test`,
+then run `php bin/phpunit`. Without an override tests use SQLite.
 
 ![Database Diagram](assets/docs/database.svg)
 
@@ -108,7 +139,7 @@ You can find some of them in the [converter folder](https://github.com/j0k3r/f43
 
 ### Requirements
 
- - PHP >= 8.2 (with `pdo_mysql` or `pdo_pgsql`)
+ - PHP >= 8.5 (with `pdo_mysql` or `pdo_pgsql`)
  - MySQL >= 5.7 or PostgreSQL
  - [RabbitMQ](https://www.rabbitmq.com/), which is optional (see below)
  - [Supervisor](http://supervisord.org/) (only if you use RabbitMQ)
@@ -122,7 +153,7 @@ For each external API that improvers / extractors / parsers use, you will need a
 
 ### Install
 
-You should generate a password using `php bin/console security:hash-password --empty-salt` and then create a `.env.local` with your hashed password:
+You should generate a password using `php bin/console security:hash-password` and then create a `.env.local` with your hashed password:
 
 ```
 ADMINPASS="MY_HASHED_PASSWORD"
@@ -198,6 +229,9 @@ You can use the built-in Docker image using `docker-compose`:
 ```bash
 docker-compose up
 ```
+
+The Docker setup injects variables from `.env` and `.env.local` into the PHP container.
+`DATABASE_URL` is then overridden in `docker-compose.yml` so the app always targets the Docker MySQL service instead of `127.0.0.1`.
 
 You should be able to access the interface using `http://localhost:8100/index.php`
 

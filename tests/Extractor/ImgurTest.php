@@ -58,8 +58,7 @@ class ImgurTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $apiAlbum->expects($this->any())
-            ->method('album')
+        $apiAlbum->method('album')
             ->willReturn([
                 'id' => 'zNUC9TA',
                 'title' => null,
@@ -87,8 +86,7 @@ class ImgurTest extends TestCase
                 'looping' => true,
             ]);
 
-        $imgurClient->expects($this->any())
-            ->method('api')
+        $imgurClient->method('api')
             ->willReturn($apiAlbum);
 
         $imgur = new Imgur($imgurClient);
@@ -107,8 +105,7 @@ class ImgurTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $apiImage->expects($this->any())
-            ->method('image')
+        $apiImage->method('image')
             ->willReturn([
                 'id' => '1S10bkI',
                 'title' => null,
@@ -135,8 +132,7 @@ class ImgurTest extends TestCase
                 'link' => 'https://i.imgur.com/1S10bkI.mp4',
             ]);
 
-        $imgurClient->expects($this->any())
-            ->method('api')
+        $imgurClient->method('api')
             ->willReturn($apiImage);
 
         $imgur = new Imgur($imgurClient);
@@ -155,8 +151,7 @@ class ImgurTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $apiAlbum->expects($this->any())
-            ->method('album')
+        $apiAlbum->method('album')
             ->willReturn([
                 'id' => 'dLaMy',
                 'title' => 'Building the Spruce Moose',
@@ -225,8 +220,7 @@ class ImgurTest extends TestCase
                 ],
             ]);
 
-        $imgurClient->expects($this->any())
-            ->method('api')
+        $imgurClient->method('api')
             ->willReturn($apiAlbum);
 
         $imgur = new Imgur($imgurClient);
@@ -253,8 +247,7 @@ class ImgurTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $imgurClient->expects($this->any())
-            ->method('api')
+        $imgurClient->method('api')
             ->will($this->throwException(new ErrorException()));
 
         $imgur = new Imgur($imgurClient);

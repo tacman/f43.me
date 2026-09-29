@@ -24,8 +24,7 @@ class ConstraintRssValidatorTest extends AppTestCase
         $client = self::getMockClient([new Response(200, [], 'This is a valid')]);
 
         $validator = new ConstraintRssValidator($client);
-        $validator->initialize($context);
-        $validator->validate('http://0.0.0.0', $constraint);
+        $validator->validateInContext('http://0.0.0.0', $constraint, $context);
     }
 
     public function testValidatorFail(): void
@@ -46,8 +45,7 @@ class ConstraintRssValidatorTest extends AppTestCase
         $client = self::getMockClient([new Response(200, [], 'This is a not valid')]);
 
         $validator = new ConstraintRssValidator($client);
-        $validator->initialize($context);
-        $validator->validate('http://0.0.0.0', $constraint);
+        $validator->validateInContext('http://0.0.0.0', $constraint, $context);
     }
 
     public function testValidatorFailFirst(): void
@@ -71,8 +69,7 @@ class ConstraintRssValidatorTest extends AppTestCase
         ]);
 
         $validator = new ConstraintRssValidator($client);
-        $validator->initialize($context);
-        $validator->validate('http://0.0.0.0', $constraint);
+        $validator->validateInContext('http://0.0.0.0', $constraint, $context);
     }
 
     public function testValidatorFailTwice(): void
@@ -92,7 +89,6 @@ class ConstraintRssValidatorTest extends AppTestCase
         ]);
 
         $validator = new ConstraintRssValidator($client);
-        $validator->initialize($context);
-        $validator->validate('http://0.0.0.0', $constraint);
+        $validator->validateInContext('http://0.0.0.0', $constraint, $context);
     }
 }

@@ -3,10 +3,12 @@ name: CI
 on:
   pull_request:
     branches:
-      - "master"
+      - "tac"
+      - "main"
   push:
     branches:
-      - "master"
+      - "tac"
+      - "main"
 
 env:
   fail-fast: true
@@ -34,14 +36,11 @@ jobs:
     strategy:
       matrix:
         php:
-          - "8.2"
-          - "8.3"
-          - "8.4"
           - "8.5"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -96,14 +95,11 @@ jobs:
     strategy:
       matrix:
         php:
-          - "8.2"
-          - "8.3"
-          - "8.4"
           - "8.5"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
 

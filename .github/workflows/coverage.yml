@@ -3,10 +3,12 @@ name: Coverage
 on:
   pull_request:
     branches:
-      - "master"
+      - "tac"
+      - "main"
   push:
     branches:
-      - "master"
+      - "tac"
+      - "main"
 
 jobs:
   phpunit:
@@ -28,11 +30,11 @@ jobs:
     strategy:
       matrix:
         php:
-          - "8.2"
+          - "8.5"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
@@ -68,7 +70,7 @@ jobs:
         run: php bin/phpunit --coverage-clover=coverage.xml
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}

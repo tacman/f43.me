@@ -19,8 +19,7 @@ class InternalTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $graby->expects($this->any())
-            ->method('fetchContent')
+        $graby->method('fetchContent')
             ->willReturn($this->getGrabyContent(''));
 
         $internal = new Internal($graby);
@@ -34,8 +33,7 @@ class InternalTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $graby->expects($this->any())
-            ->method('fetchContent')
+        $graby->method('fetchContent')
             ->willReturn($this->getGrabyContent(''));
 
         $internal = new Internal($graby);
@@ -49,8 +47,7 @@ class InternalTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $graby->expects($this->any())
-            ->method('fetchContent')
+        $graby->method('fetchContent')
             ->willReturn($this->getGrabyContent('<p>test</p>'));
 
         $internal = new Internal($graby);
@@ -64,8 +61,7 @@ class InternalTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $graby->expects($this->any())
-            ->method('fetchContent')
+        $graby->method('fetchContent')
             ->will($this->throwException(new \Exception()));
 
         $internal = new Internal($graby);

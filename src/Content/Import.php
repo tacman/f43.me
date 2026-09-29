@@ -73,7 +73,7 @@ class Import
 
                 // if an item already exists, we skip it
                 // or if the item doesn't have a link, we won't cache it - will be useless
-                if (isset($cachedLinks[$permalink]) || null === $permalink) {
+                if (null === $permalink || isset($cachedLinks[$permalink])) {
                     continue;
                 }
 
